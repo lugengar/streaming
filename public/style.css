@@ -1,0 +1,130 @@
+#playButton {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 6vh;
+    color: white;
+    background-color: rgba(0, 0, 0, 0.5);
+    padding: 20px;
+    border-radius: 50vh;
+    cursor: pointer;
+    z-index: 3;
+    user-select: none;
+    transition: background-color 0.3s;
+}
+
+#playButton:hover {
+    background-color: rgba(0, 0, 0, 0.7);
+}
+
+   /* Fondo general */
+body {
+    margin: 0;
+    padding: 0;
+    background-color: black;
+    overflow: hidden;
+}
+
+/* Contenedor principal del video */
+.container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    z-index: 1;
+}
+
+/* Video ocupa toda la pantalla */
+#remoteVideo,
+#video {
+    transform: scaleX(-1);
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    background-color: black;
+}
+
+/* Chat overlay encima del video */
+#chat {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 2;
+    display: grid;
+    grid-template:
+        ". . ." 1fr
+        "CHAT . ." 20vh
+        "ESC ESC ENV" 10vh/
+        1fr auto 8vh;
+    pointer-events: none; /* para que no bloquee el video */
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.8), transparent);
+
+}
+
+/* Área de mensajes del chat */
+#chatMessages {
+    font-size: 3vh;
+    grid-area: CHAT;
+    background-color: transparent;
+    border: none;
+    pointer-events: auto;
+    color: white;
+    padding: 10px;
+    font-family: sans-serif;
+
+    overflow-y: auto;
+    max-height: 100%;
+}
+
+/* Input de texto */
+#chatInput {
+    font-size: 2vh;
+    grid-area: ESC;
+    pointer-events: auto;
+    background-color: rgba(255, 255, 255, 0.1);
+    border: 1px solid white;
+    color: white;
+    padding: 8px;
+ 
+    outline: none;
+    width: 90%;
+    margin: auto;
+    border-radius: 5px;
+}
+
+/* Botón de enviar */
+#enviar {
+    grid-area: ENV;
+    pointer-events: auto;
+    background-color: rgba(255, 255, 255, 0.2);
+    border: 1px solid white;
+    color: white;
+    font-size: 2vh;
+    padding: 8px;
+    border-radius: 5px;
+    cursor: pointer;
+    margin: auto;
+}
+
+#enviar:hover {
+    background-color: rgba(255, 255, 255, 0.4);
+}
+.boton{
+    opacity: 50%;
+    position: absolute;
+    right: 2vh;
+    top: 3vh;
+    background-color: rgb(25, 226, 92);
+    padding: 1vh;
+    border-radius: 2vh;
+    width: 10vh;
+    color: white;
+    border: none;
+    font-size: 2vh;
+}
