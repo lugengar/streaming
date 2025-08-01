@@ -1,0 +1,18 @@
+<body>
+    <link rel="stylesheet" href="style.css">
+<div class="container">
+    <video id="remoteVideo" autoplay playsinline></video>
+    <div id="playButton" onclick="playVideo()">►</div>
+    <a href="index.html" class="boton">Salir</a>
+    <input type="text" id="viewerName" placeholder="Nombre" class="input" />
+
+</div>
+
+<div id="chat">
+    <div id="chatMessages" ></div>
+    <input id="chatInput" type="text" placeholder="Escribe un mensaje..." />
+    <button id="enviar" onclick="sendChat()">Enviar</button>
+</div>
+
+</body>
+<script src="viewer.js"></script>

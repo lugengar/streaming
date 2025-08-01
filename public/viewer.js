@@ -2,55 +2,83 @@ const video = document.getElementById('remoteVideo');
 const chatMessages = document.getElementById('chatMessages');
 const chatInput = document.getElementById('chatInput');
 const protocol = window.location.protocol === 'https:' ? 'wss' : 'ws';
-const ws = new WebSocket(`${protocol}://${window.location.host}`);
+
+let ws;
 let peerConnection;
+let viewerName = '';
+
 function playVideo() {
-  const video = document.getElementById('remoteVideo');
-  video.play();
-  document.getElementById('playButton').style.display = 'none';
-}
+  viewerName = document.getElementById('viewerName').value.trim();
+  if (!viewerName) {
+    alert('Por favor ingresa tu nombre para ver el stream.');
+    return;
+  }
 
-ws.onopen = () => {
-  ws.send(JSON.stringify({ type: 'watcher' }));
-};
+  const params = new URLSearchParams(window.location.search);
+  const streamId = params.get('id');
+  if (!streamId) {
+    alert('No se encontró ID del stream en la URL.');
+    return;
+  }
 
-ws.onmessage = async (event) => {
-  const message = JSON.parse(event.data);
+  ws = new WebSocket(`${protocol}://${window.location.host}/?id=${streamId}`);
 
-  if (message.type === 'offer') {
-    peerConnection = new RTCPeerConnection();
+  ws.onopen = () => {
+    console.log('WebSocket conectado como viewer.');
+    ws.send(JSON.stringify({ type: 'watcher', watcherId: viewerName }));
+  };
 
-    peerConnection.ontrack = event => {
-      video.srcObject = event.streams[0];
-    };
+  ws.onmessage = async (event) => {
+    const msg = JSON.parse(event.data);
 
-    peerConnection.onicecandidate = event => {
-      if (event.candidate) {
-        ws.send(JSON.stringify({ type: 'candidate', candidate: event.candidate }));
+    if (msg.type === 'offer') {
+      peerConnection = new RTCPeerConnection();
+
+      peerConnection.ontrack = event => {
+        video.srcObject = event.streams[0];
+        video.play();
+        document.getElementById('playButton').style.display = 'none';
+      };
+
+      peerConnection.onicecandidate = event => {
+        if (event.candidate) {
+          ws.send(JSON.stringify({ type: 'candidate', candidate: event.candidate, watcherId: viewerName }));
+        }
+      };
+
+      await peerConnection.setRemoteDescription(new RTCSessionDescription(msg.sdp));
+      const answer = await peerConnection.createAnswer();
+      await peerConnection.setLocalDescription(answer);
+      ws.send(JSON.stringify({ type: 'answer', sdp: answer, watcherId: viewerName }));
+    }
+
+    if (msg.type === 'candidate') {
+      if (peerConnection) {
+        await peerConnection.addIceCandidate(new RTCIceCandidate(msg.candidate));
       }
-    };
+    }
 
-    await peerConnection.setRemoteDescription(new RTCSessionDescription(message.sdp));
-    const answer = await peerConnection.createAnswer();
-    await peerConnection.setLocalDescription(answer);
-    ws.send(JSON.stringify({ type: 'answer', sdp: answer }));
-  }
+    if (msg.type === 'chat') {
+      addChatMessage(`${msg.from}: ${msg.message}`);
+    }
 
-  if (message.type === 'candidate') {
-    const candidate = new RTCIceCandidate(message.candidate);
-    await peerConnection.addIceCandidate(candidate);
-  }
-
-  if (message.type === 'chat') {
-    addChatMessage(`${message.from}: ${message.message}`);
-  }
-};
+    if (msg.type === 'endStream') {
+      video.srcObject = null;
+      addChatMessage('📴 Transmisión finalizada.');
+      ws.close();
+    }
+  };
+}
 
 function sendChat() {
   const msg = chatInput.value.trim();
   if (!msg) return;
-  ws.send(JSON.stringify({ type: 'chat', message: msg }));
-  addChatMessage(`Yo: ${msg}`);
+  if (!viewerName) {
+    alert('Debes ingresar un nombre para enviar mensajes.');
+    return;
+  }
+  ws.send(JSON.stringify({ type: 'chat', message: msg, from: viewerName }));
+  addChatMessage(`Yo (${viewerName}): ${msg}`);
   chatInput.value = '';
 }
 

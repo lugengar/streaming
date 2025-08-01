@@ -1,16 +1,107 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Streams Activos</title>
+  <style>
+    /* Estilos oscuros */
+    body {
+      background-color: #121212;
+      color: #e0e0e0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      margin: 20px;
+    }
+
+    h1 {
+      color: #86b5fc;
+      text-align: center;
+      margin-bottom: 30px;
+    }
+    a {
+      color: #86b5fc;
+      text-align: center;
+      margin-bottom: 30px;
+    }
+    ul#streamsList {
+      list-style: none;
+      padding: 0;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    ul#streamsList li {
+      background-color: #1e1e1e;
+      margin-bottom: 15px;
+      border-radius: 8px;
+      padding: 15px 20px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.7);
+      transition: background-color 0.3s ease;
+    }
+
+    ul#streamsList li:hover {
+      background-color: #333333;
+    }
+
+    ul#streamsList li a {
+      color: #bb86fc;
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 1.1em;
+      display: block;
+      word-break: break-word;
+    }
+
+    ul#streamsList li a:hover {
+      text-decoration: underline;
+    }
+
+    /* Mensaje cuando no hay streams */
+    ul#streamsList li.no-streams {
+      background-color: transparent;
+      box-shadow: none;
+      color: #888;
+      text-align: center;
+      font-style: italic;
+    }
+  </style>
+</head>
 <body>
-    <link rel="stylesheet" href="style.css">
-<div class="container">
-    <video id="remoteVideo" autoplay playsinline></video>
-    <div id="playButton" onclick="playVideo()">►</div>
-</div>
+  <h1>Streams Activos</h1>
+  <a href="streamer.html">Crear Stream</a>
+  <ul id="streamsList"></ul>
 
-<div id="chat">
-    <div id="chatMessages" ></div>
-    <input id="chatInput" type="text" placeholder="Escribe un mensaje..." />
-    <button id="enviar" onclick="sendChat()">Enviar</button>
-</div>
+  <script>
+    // Pedimos al servidor la lista de streams activos con título, id y nombre de streamer
+    async function fetchStreams() {
+      try {
+        const response = await fetch('/streams');
+        const streams = await response.json();
+        const ul = document.getElementById('streamsList');
+        ul.innerHTML = '';
 
+        if (streams.length === 0) {
+          const li = document.createElement('li');
+          li.textContent = 'No hay streams activos';
+          li.classList.add('no-streams');
+          ul.appendChild(li);
+          return;
+        }
+
+        streams.forEach(({ id, title, streamerName }) => {
+          const li = document.createElement('li');
+          const a = document.createElement('a');
+          a.href = `/viewer.html?id=${id}`;
+          a.textContent = `${title || id} — Streamer: ${streamerName || 'Desconocido'}`;
+          li.appendChild(a);
+          ul.appendChild(li);
+        });
+      } catch (error) {
+        console.error('Error obteniendo streams:', error);
+      }
+    }
+
+    fetchStreams();
+    setInterval(fetchStreams, 10000); // refrescar cada 10 segundos
+  </script>
 </body>
-<script src="viewer.js"></script>
-
+</html>

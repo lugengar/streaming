@@ -128,3 +128,16 @@ body {
     border: none;
     font-size: 2vh;
 }
+.input{
+    opacity: 50%;
+    position: absolute;
+    left: 2vh;
+    top: 3vh;
+    padding: 1vh;
+    border-radius: 2vh;
+    width: 15vh;
+    color: black;
+    border: none;
+    font-size: 1vh;
+
+}

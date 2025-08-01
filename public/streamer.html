@@ -1,0 +1,20 @@
+<!-- streamer.html -->
+<body>
+  <link rel="stylesheet" href="style.css">
+  <div class="container">
+    <video id="video" autoplay playsinline muted></video>
+    <input id="tituloStream" class="input" placeholder="Título del stream">
+    <input id="streamId" class="input"style="top: 7vh;" placeholder="ID único del stream">
+    <input type="text" class="input"style="top: 11vh;"  id="streamerName" placeholder="Nombre streamer" />
+
+    <button onclick="iniciar()" class="boton">Iniciar Stream</button>
+    <button id="stopButton" onclick="stopStream()" class="boton" style="top: 10vh; background-color: rgb(216, 55, 55);">Terminar Stream</button>
+</div>
+<!-- Chat -->
+<div id="chat">
+  <div id="chatMessages" ></div>
+  <input id="chatInput" type="text" placeholder="Escribe un mensaje..." />
+  <button id="enviar" onclick="sendChat()">Enviar</button>
+</div>
+</body>
+<script src="streamer.js"></script>
