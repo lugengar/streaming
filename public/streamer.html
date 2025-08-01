@@ -7,9 +7,12 @@
     <input id="streamId" class="input"style="top: 7vh;" placeholder="ID único del stream">
     <input type="text" class="input"style="top: 11vh;"  id="streamerName" placeholder="Nombre streamer" />
 
-    <button onclick="iniciar()" class="boton">Iniciar Stream</button>
-    <button id="stopButton" onclick="stopStream()" class="boton" style="top: 10vh; background-color: rgb(216, 55, 55);">Terminar Stream</button>
-</div>
+    <button onclick="iniciar()" class="boton" style="top: 7.5vh;">Iniciar Stream</button>
+    <button id="stopButton" onclick="stopStream()" class="boton" style="top: 13.5vh; background-color: rgb(216, 55, 55);">Terminar Stream</button>
+    <a href="index.html" style="background-color: rgb(216, 133, 55);" class="boton">Salir</a>
+    <button onclick="compartirLink()" style= " top: 15.5vh; left:2vh; right: auto; background-color:rgb(55, 138, 216);" class="boton">🔗 Compartir</button>
+<div id="mensajeCopiado" style="display:none; color:lightgreen;">📋 Link copiado</div>
+  </div>
 <!-- Chat -->
 <div id="chat">
   <div id="chatMessages" ></div>
@@ -18,3 +21,23 @@
 </div>
 </body>
 <script src="streamer.js"></script>
+<script>
+  function compartirLink() {
+    const streamId = document.getElementById('streamId').value.trim();
+    if (!streamId) {
+      alert('Primero ingresá un ID de stream');
+      return;
+    }
+
+    // ⚠️ Reemplazá esto con TU dominio Render real
+    const link = `https://mi-streamapp.onrender.com/viewer.html?id=${streamId}`;
+
+    navigator.clipboard.writeText(link).then(() => {
+      const mensaje = document.getElementById('mensajeCopiado');
+      mensaje.style.display = 'block';
+      setTimeout(() => mensaje.style.display = 'none', 2000);
+    }).catch(err => {
+      console.error('Error al copiar:', err);
+    });
+  }
+</script>

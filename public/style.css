@@ -1,4 +1,4 @@
-#playButton {
+#playButton, #mensajeCopiado {
     position: absolute;
     top: 50%;
     left: 50%;
@@ -116,7 +116,7 @@ body {
     background-color: rgba(255, 255, 255, 0.4);
 }
 .boton{
-    opacity: 50%;
+
     position: absolute;
     right: 2vh;
     top: 3vh;
@@ -126,10 +126,12 @@ body {
     width: 10vh;
     color: white;
     border: none;
-    font-size: 2vh;
+    font-size: 1.5vh;
+    text-align: center;
+    margin: 0;
 }
 .input{
-    opacity: 50%;
+
     position: absolute;
     left: 2vh;
     top: 3vh;
@@ -138,6 +140,6 @@ body {
     width: 15vh;
     color: black;
     border: none;
-    font-size: 1vh;
+    font-size: 1.5vh;
 
 }
