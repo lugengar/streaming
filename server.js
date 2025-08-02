@@ -3,11 +3,10 @@ const http = require('http');
 const WebSocket = require('ws');
 const cors = require('cors');
 
-// Solo permitir tu dominio
-
 const app = express();
 const server = http.createServer(app);
 const wss = new WebSocket.Server({ server });
+
 app.use(cors({
   origin: 'https://barbiniwebdesign.com.ar'
 }));
@@ -38,24 +37,20 @@ wss.on('connection', (ws, req) => {
     if (msg.type === 'watcher' && streams[streamId]?.broadcasterWs) {
       const watcherId = msg.watcherId || `w${Date.now()}`;
       streams[streamId].watchers[watcherId] = ws;
-    
+
       ws.watcherId = watcherId;
       ws.otherClient = streams[streamId].broadcasterWs;
-    
+
       streams[streamId].broadcasterWs.send(JSON.stringify({ type: 'watcher', watcherId }));
-    
-      // 👉 Enviar cantidad de viewers
+
       const viewerCount = Object.keys(streams[streamId].watchers).length;
       streams[streamId].broadcasterWs.send(JSON.stringify({ type: 'viewerCount', count: viewerCount }));
-    
-      // 👉 Enviar a todos los watchers también (opcional)
       for (const wId in streams[streamId].watchers) {
         streams[streamId].watchers[wId].send(JSON.stringify({ type: 'viewerCount', count: viewerCount }));
       }
-    
+
       console.log(`Watcher ${watcherId} conectado. Viewers: ${viewerCount}`);
     }
-    
 
     if (msg.type === 'offer') {
       if (streams[streamId]?.watchers[msg.watcherId]) {
@@ -78,16 +73,13 @@ wss.on('connection', (ws, req) => {
     }
 
     if (msg.type === 'chat') {
-      // Reenviar chat a broadcaster y watchers, con nombre
       if (ws === streams[streamId]?.broadcasterWs) {
-        // Desde streamer a watchers
         for (const wId in streams[streamId].watchers) {
           if (streams[streamId].watchers[wId] !== ws) {
             streams[streamId].watchers[wId].send(JSON.stringify({ type: 'chat', from: streams[streamId].name, message: msg.message }));
           }
         }
       } else {
-        // Desde watcher a broadcaster y otros watchers
         const fromName = msg.from || ws.watcherId;
         if (streams[streamId]?.broadcasterWs && streams[streamId].broadcasterWs !== ws) {
           streams[streamId].broadcasterWs.send(JSON.stringify({ type: 'chat', from: fromName, message: msg.message }));
@@ -101,7 +93,6 @@ wss.on('connection', (ws, req) => {
     }
 
     if (msg.type === 'endStream') {
-      // El streamer cerró el stream
       if (streams[streamId]) {
         for (const wId in streams[streamId].watchers) {
           streams[streamId].watchers[wId].send(JSON.stringify({ type: 'endStream' }));
@@ -115,7 +106,6 @@ wss.on('connection', (ws, req) => {
 
   ws.on('close', () => {
     if (ws === streams[streamId]?.broadcasterWs) {
-      // El streamer se desconectó
       if (streams[streamId]) {
         for (const wId in streams[streamId].watchers) {
           streams[streamId].watchers[wId].send(JSON.stringify({ type: 'endStream' }));
@@ -127,19 +117,15 @@ wss.on('connection', (ws, req) => {
     } else if (ws.watcherId && streams[streamId]?.watchers) {
       delete streams[streamId].watchers[ws.watcherId];
       console.log(`Watcher ${ws.watcherId} desconectado de stream ${streamId}`);
-    
-      // 👉 Enviar cantidad actualizada de viewers
+
       if (streams[streamId]?.broadcasterWs) {
         const viewerCount = Object.keys(streams[streamId].watchers).length;
         streams[streamId].broadcasterWs.send(JSON.stringify({ type: 'viewerCount', count: viewerCount }));
-    
-        // 👉 También a los watchers restantes (opcional)
         for (const wId in streams[streamId].watchers) {
           streams[streamId].watchers[wId].send(JSON.stringify({ type: 'viewerCount', count: viewerCount }));
         }
       }
     }
-    
   });
 });
 
@@ -151,8 +137,6 @@ app.get('/streams', (req, res) => {
   }));
   res.json(lista);
 });
-
-//app.use(express.static('public'));
 
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => console.log(`Servidor escuchando en http://localhost:${PORT}`));
