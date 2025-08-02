@@ -38,14 +38,24 @@ wss.on('connection', (ws, req) => {
     if (msg.type === 'watcher' && streams[streamId]?.broadcasterWs) {
       const watcherId = msg.watcherId || `w${Date.now()}`;
       streams[streamId].watchers[watcherId] = ws;
-
+    
       ws.watcherId = watcherId;
       ws.otherClient = streams[streamId].broadcasterWs;
-
-      // Informar broadcaster que hay un watcher
+    
       streams[streamId].broadcasterWs.send(JSON.stringify({ type: 'watcher', watcherId }));
-      console.log(`Watcher ${watcherId} conectado a stream ${streamId}`);
+    
+      // 👉 Enviar cantidad de viewers
+      const viewerCount = Object.keys(streams[streamId].watchers).length;
+      streams[streamId].broadcasterWs.send(JSON.stringify({ type: 'viewerCount', count: viewerCount }));
+    
+      // 👉 Enviar a todos los watchers también (opcional)
+      for (const wId in streams[streamId].watchers) {
+        streams[streamId].watchers[wId].send(JSON.stringify({ type: 'viewerCount', count: viewerCount }));
+      }
+    
+      console.log(`Watcher ${watcherId} conectado. Viewers: ${viewerCount}`);
     }
+    
 
     if (msg.type === 'offer') {
       if (streams[streamId]?.watchers[msg.watcherId]) {
@@ -117,7 +127,19 @@ wss.on('connection', (ws, req) => {
     } else if (ws.watcherId && streams[streamId]?.watchers) {
       delete streams[streamId].watchers[ws.watcherId];
       console.log(`Watcher ${ws.watcherId} desconectado de stream ${streamId}`);
+    
+      // 👉 Enviar cantidad actualizada de viewers
+      if (streams[streamId]?.broadcasterWs) {
+        const viewerCount = Object.keys(streams[streamId].watchers).length;
+        streams[streamId].broadcasterWs.send(JSON.stringify({ type: 'viewerCount', count: viewerCount }));
+    
+        // 👉 También a los watchers restantes (opcional)
+        for (const wId in streams[streamId].watchers) {
+          streams[streamId].watchers[wId].send(JSON.stringify({ type: 'viewerCount', count: viewerCount }));
+        }
+      }
     }
+    
   });
 });
 
