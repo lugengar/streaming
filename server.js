@@ -1,10 +1,16 @@
 const express = require('express');
 const http = require('http');
 const WebSocket = require('ws');
+const cors = require('cors');
+
+// Solo permitir tu dominio
 
 const app = express();
 const server = http.createServer(app);
 const wss = new WebSocket.Server({ server });
+app.use(cors({
+  origin: 'https://barbiniwebdesign.com.ar'
+}));
 
 const streams = {}; // { streamId: { broadcasterWs, title, name, watchers: { watcherId: ws } } }
 
@@ -124,7 +130,7 @@ app.get('/streams', (req, res) => {
   res.json(lista);
 });
 
-app.use(express.static('public'));
+//app.use(express.static('public'));
 
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => console.log(`Servidor escuchando en http://localhost:${PORT}`));
