@@ -26,6 +26,7 @@ function playVideo() {
   ws.onopen = () => {
     console.log('WebSocket conectado como viewer.');
     ws.send(JSON.stringify({ type: 'watcher', watcherId: viewerName }));
+    addChatMessage(`${viewerName} se unió`);
   };
 
   ws.onmessage = async (event) => {
