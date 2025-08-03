@@ -54,7 +54,7 @@ wss.on('connection', (ws, req) => {
 
     if (msg.type === 'offer') {
       if (streams[streamId]?.watchers[msg.watcherId]) {
-        streams[streamId].watchers[msg.watcherId].send(JSON.stringify({ type: 'offer', sdp: msg.sdp }));
+        streams[streamId].watchers[msg.watcherId].send(JSON.stringify({ type: 'offer', sdp: msg.sdp, name: streams[streamId].name, title:streams[streamId].title }));
       }
     }
 
