@@ -71,7 +71,25 @@ wss.on('connection', (ws, req) => {
         streams[streamId].broadcasterWs.send(JSON.stringify({ type: 'candidate', candidate: msg.candidate, watcherId: msg.watcherId }));
       }
     }
-
+    if (msg.type === 'heart') {
+      if (ws === streams[streamId]?.broadcasterWs) {
+        for (const wId in streams[streamId].watchers) {
+          if (streams[streamId].watchers[wId] !== ws) {
+            streams[streamId].watchers[wId].send(JSON.stringify({ type: 'heart', from: streams[streamId].name}));
+          }
+        }
+      } else {
+        const fromName = msg.from || ws.watcherId;
+        if (streams[streamId]?.broadcasterWs && streams[streamId].broadcasterWs !== ws) {
+          streams[streamId].broadcasterWs.send(JSON.stringify({ type: 'heart', from: fromName}));
+        }
+        for (const wId in streams[streamId].watchers) {
+          if (streams[streamId].watchers[wId] !== ws) {
+            streams[streamId].watchers[wId].send(JSON.stringify({ type: 'heart', from: fromName }));
+          }
+        }
+      }
+    }
     if (msg.type === 'chat') {
       if (ws === streams[streamId]?.broadcasterWs) {
         for (const wId in streams[streamId].watchers) {
